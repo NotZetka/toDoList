@@ -33,7 +33,6 @@ class _homeState extends State<home> {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        backgroundColor: Colors.purple,
       ),
       body: ListView(
         children: getContent(),
@@ -43,7 +42,6 @@ class _homeState extends State<home> {
         onPressed: () {
           addTask(context);
         },
-        backgroundColor: Colors.purple,
       ),
     );
   }
@@ -103,18 +101,20 @@ class _homeState extends State<home> {
         onDismissed: (_) {
           helper.deleteSession(task.id).then((value) => updateScreen());
         },
-        child: ListTile(
-          title: Text(task.title ?? ''),
-          onLongPress: () {
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    content: Text(task.description),
-                  );
-                });
-          },
-          hoverColor: Colors.grey[200],
+        child: Card(
+          child: ListTile(
+            title: Text(task.title ?? ''),
+            onLongPress: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      content: Text(task.description),
+                    );
+                  });
+            },
+            hoverColor: Colors.grey[200],
+          ),
         ),
       ));
     });
