@@ -19,21 +19,24 @@ class SPHelper {
     Set<String> keys = prefs.getKeys();
     keys.forEach((String key) {
       if (key != 'counter') {
-        Task task = Task.fromJson(jsonDecode(prefs.getString(key) ?? ''));
+        Task task = Task.fromJson(json.decode(prefs.getString(key) ?? ''));
         tasks.add(task);
       }
     });
-
     return tasks;
   }
 
-  Future setcounter() async {
+  Future setCounter() async {
     int counter = prefs.getInt('counter') ?? 0;
     counter++;
     await prefs.setInt('counter', counter);
   }
 
-  int getcounter() {
+  int getCounter() {
     return prefs.getInt('counter') ?? 0;
+  }
+
+  Future deleteSession(int id) async {
+    prefs.remove(id.toString());
   }
 }

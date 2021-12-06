@@ -10,14 +10,16 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
+  List<Task> tasks = [];
   final TextEditingController txtTitle = TextEditingController();
   final TextEditingController txtDescription = TextEditingController();
   final SPHelper helper = SPHelper();
-  List<Task> tasks = [];
 
   @override
   void initState() {
-    helper.init().then((value) => updateScreen());
+    helper.init().then((value) {
+      updateScreen();
+    });
     super.initState();
   }
 
@@ -62,42 +64,58 @@ class _homeState extends State<home> {
                   TextField(
                     controller: txtDescription,
                     decoration: InputDecoration(hintText: 'description'),
-                  ),
+                  )
                 ],
               ),
             ),
             actions: [
               TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    txtTitle.text = '';
-                    txtDescription.text = '';
-                  },
-                  child: Text('cancel')),
-              ElevatedButton(onPressed: saveTask, child: Text('save'))
+                onPressed: () {
+                  Navigator.pop(context);
+                  txtTitle.text = '';
+                  txtDescription.text = '';
+                },
+                child: Text('Cancel'),
+              ),
+              ElevatedButton(onPressed: saveTask, child: Text('Save'))
             ],
           );
         });
   }
 
   Future saveTask() async {
-    int id = helper.getcounter();
-    Task task = Task(txtTitle.text, txtDescription.text, id);
-    helper.writeTask(task).then((_) {
+    int id = helper.getCounter() + 1;
+    Task newTask = Task(id, txtTitle.text, txtDescription.text);
+    helper.writeTask(newTask).then((_) {
       updateScreen();
-      helper.setcounter();
+      helper.setCounter();
     });
-    txtTitle.text = '';
     txtDescription.text = '';
+    txtTitle.text = '';
     Navigator.pop(context);
   }
 
   List<Widget> getContent() {
     List<Widget> tiles = [];
-    tasks.forEach((Task task) {
-      tiles.add(Text(
-        task.title ?? '',
-        style: TextStyle(color: Colors.black),
+    tasks.forEach((task) {
+      tiles.add(Dismissible(
+        key: UniqueKey(),
+        onDismissed: (_) {
+          helper.deleteSession(task.id).then((value) => updateScreen());
+        },
+        child: ListTile(
+          title: Text(task.title ?? ''),
+          onLongPress: () {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    content: Text(task.description),
+                  );
+                });
+          },
+          hoverColor: Colors.grey[200],
+        ),
       ));
     });
     return tiles;

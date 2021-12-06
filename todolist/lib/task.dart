@@ -1,17 +1,17 @@
 class Task {
-  String? title;
-  String description = '';
   int id = 0;
+  String? title = '';
+  String description = '';
 
-  Task(this.title, this.description, this.id);
+  Task(this.id, this.title, this.description);
 
   Task.fromJson(Map<String, dynamic> taskMap) {
+    id = taskMap['id'];
     title = taskMap['title'] ?? '';
     description = taskMap['description'] ?? '';
-    id = taskMap['id'];
   }
 
   Map<String, dynamic> toJson() {
-    return {'title': title, 'description': description, 'id': id};
+    return {'id': id, 'title': title, 'description': description};
   }
 }
