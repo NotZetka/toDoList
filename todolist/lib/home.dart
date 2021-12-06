@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todolist/Task.dart';
+import 'package:todolist/task.dart';
 import 'package:todolist/sphelper.dart';
 
 class home extends StatefulWidget {
@@ -14,6 +14,13 @@ class _homeState extends State<home> {
   final TextEditingController txtDescription = TextEditingController();
   final SPHelper helper = SPHelper();
   List<Task> tasks = [];
+
+  @override
+  void initState() {
+    helper.init().then((value) => updateScreen());
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,11 +34,13 @@ class _homeState extends State<home> {
         backgroundColor: Colors.purple,
       ),
       body: ListView(
-        children: [],
+        children: getContent(),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {},
+        onPressed: () {
+          addTask(context);
+        },
         backgroundColor: Colors.purple,
       ),
     );
@@ -43,17 +52,19 @@ class _homeState extends State<home> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Add task'),
-            content: Column(
-              children: [
-                TextField(
-                  controller: txtTitle,
-                  decoration: InputDecoration(hintText: 'title'),
-                ),
-                TextField(
-                  controller: txtDescription,
-                  decoration: InputDecoration(hintText: 'description'),
-                ),
-              ],
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: txtTitle,
+                    decoration: InputDecoration(hintText: 'title'),
+                  ),
+                  TextField(
+                    controller: txtDescription,
+                    decoration: InputDecoration(hintText: 'description'),
+                  ),
+                ],
+              ),
             ),
             actions: [
               TextButton(
@@ -63,18 +74,37 @@ class _homeState extends State<home> {
                     txtDescription.text = '';
                   },
                   child: Text('cancel')),
-              ElevatedButton(onPressed: () {}, child: Text('save'))
+              ElevatedButton(onPressed: saveTask, child: Text('save'))
             ],
           );
         });
   }
 
   Future saveTask() async {
-    Task task = Task(txtTitle.text, txtDescription.text, 1);
-    helper.writeTask(task);
+    int id = helper.getcounter();
+    Task task = Task(txtTitle.text, txtDescription.text, id);
+    helper.writeTask(task).then((_) {
+      updateScreen();
+      helper.setcounter();
+    });
+    txtTitle.text = '';
+    txtDescription.text = '';
+    Navigator.pop(context);
   }
 
-  List<Task> getTasks() {
-    return [];
+  List<Widget> getContent() {
+    List<Widget> tiles = [];
+    tasks.forEach((Task task) {
+      tiles.add(Text(
+        task.title ?? '',
+        style: TextStyle(color: Colors.black),
+      ));
+    });
+    return tiles;
+  }
+
+  void updateScreen() {
+    tasks = helper.getTasks();
+    setState(() {});
   }
 }
